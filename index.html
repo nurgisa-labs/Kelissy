@@ -77,6 +77,40 @@
       font-weight: 700;
     }
 
+    /* Native, script-free section menu — rendered only below 621px. */
+    .mobile-sections { display: none; }
+    .mobile-sections summary {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      color: var(--muted);
+      font-size: 13px;
+      list-style: none;
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: var(--line);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 5px;
+    }
+    .mobile-sections summary::-webkit-details-marker { display: none; }
+    .mobile-sections[open] summary { color: var(--ink); text-decoration-color: currentColor; }
+    .mobile-sections-links {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      border-top: 1px solid var(--line);
+    }
+    .mobile-sections-links a {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .mobile-sections-links a:last-child { border-bottom: 0; }
+
     .hero {
       display: grid;
       grid-template-columns: .86fr 1.14fr;
@@ -153,15 +187,20 @@
       .nav-links { gap: 14px; }
       .nav-links a { font-size: 12px; white-space: nowrap; }
       .nav-action { padding: 8px 11px; }
+      .nav .wordmark, .nav-links a, .hero-actions .text-link, footer a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+      }
       .hero { grid-template-columns: 1fr; }
       .hero-copy { padding: 50px 0 38px; }
       .hero-copy h1 { max-width: 560px; }
       .hero-art { min-height: 430px; }
       .hero-art img { object-position: 52% center; }
       .hero-note { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 14px; }
-      .statement { padding: 92px 0 85px; }
+      .statement { padding: 78px 0 72px; }
       .statement-grid, .formula-grid, .join-grid { grid-template-columns: 1fr; gap: 32px; }
-      .formula-wrap, .routine { padding-top: 82px; padding-bottom: 82px; }
+      .formula-wrap, .routine { padding-top: 72px; padding-bottom: 72px; }
       .ingredient { grid-template-columns: 28px 1fr; gap: 10px 14px; }
       .ingredient p { grid-column: 2; }
       .section-top { display: block; margin-bottom: 32px; }
@@ -171,13 +210,51 @@
       .routine-item small { grid-column: 3; grid-row: 1; }
       .city { grid-template-columns: 1fr; }
       .city-art { min-height: 480px; }
-      .city-copy { padding: 80px 8%; }
-      .join { padding: 90px 0; }
+      .city-copy { padding: 64px 8%; }
+      .join { padding: 72px 0; }
       .footer-row { align-items: flex-start; flex-direction: column; }
     }
 
     @media (max-width: 620px) {
+      /* Mobile header is one deterministic grid: a 44px top row holding the
+         wordmark, the "Разделы" summary and the Instagram action, plus a second
+         row that only the opened panel occupies. The 10.5px block padding keeps
+         the closed header at its established 66px (44px row inside a 65px content
+         box). flex-wrap is retained so the menu stays a wrapping in-flow header,
+         it has no effect while .nav is a grid. */
+      .nav {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-rows: 44px auto;
+        flex-wrap: wrap;
+        gap: 0 12px;
+        padding: 10.5px 0;
+      }
+      .nav > .wordmark { grid-column: 1; grid-row: 1; }
+      .nav > .nav-links { grid-column: 3; grid-row: 1; justify-self: end; }
       .nav-links a:not(.nav-action) { display: none; }
+      /* Closed: a plain block in the middle column, so hiding the panel stays on
+         the browser's native disclosure path. */
+      .mobile-sections { display: block; grid-column: 2; grid-row: 1; text-align: center; }
+      /* Open: the disclosure spans the whole header grid, so its summary keeps the
+         top row while its panel becomes the full-width second row — normal flow,
+         no overlay, hero is pushed down. The spanning box is transparent to input;
+         only the summary and the links themselves take pointer events. */
+      .mobile-sections[open] {
+        display: grid;
+        grid-column: 1 / -1;
+        grid-row: 1 / -1;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: 44px auto;
+        pointer-events: none;
+      }
+      .mobile-sections[open] summary { grid-row: 1; justify-self: center; pointer-events: auto; }
+      .mobile-sections[open] .mobile-sections-links {
+        grid-row: 2;
+        text-align: start;
+        pointer-events: auto;
+      }
+      .footer-row { gap: 6px; }
     }
 
     @media (max-width: 460px) {
@@ -185,10 +262,28 @@
       .hero-copy h1 { font-size: 50px; }
       .hero-copy p { font-size: 16px; }
       .hero-art { min-height: 340px; }
-      .art-label { right: 12px; bottom: 12px; }
+      .art-label { right: 12px; bottom: 12px; max-width: 200px; padding: 10px 12px; }
       .statement h2, .section-top h2, .city-copy h2 { font-size: 38px; }
       .routine-item h3 { font-size: 21px; }
+      .routine-item small { white-space: nowrap; }
+      .city-copy .micro { font-size: 13px; }
       .join h2 { font-size: 47px; }
+    }
+
+    @media (max-width: 380px) {
+      .routine-item { grid-template-columns: 34px minmax(0, 1fr); row-gap: 8px; }
+      .routine-item p, .routine-item small { grid-column: 2; grid-row: auto; }
+      .routine-item small { justify-self: start; }
+    }
+
+    @media (max-width: 360px) {
+      .hero-copy { padding: 18px 0 16px; }
+      .hero-copy h1 { font-size: 40px; }
+      .hero-copy p { margin-top: 12px; }
+      .hero-actions { flex-wrap: nowrap; gap: 8px; margin-top: 14px; }
+      .hero-actions .button { padding: 0 10px; }
+      .hero-actions .button, .hero-actions .text-link { font-size: 12px; }
+      .hero-note { padding-top: 8px; }
     }
 
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; } }
@@ -198,6 +293,14 @@
   <header class="shell">
     <nav class="nav" aria-label="Основная навигация">
       <a class="wordmark" href="#top" aria-label="Kelissy — главная">KELISSY</a>
+      <details class="mobile-sections">
+        <summary>Разделы</summary>
+        <div class="mobile-sections-links">
+          <a href="#philosophy">Философия</a>
+          <a href="#future-line">Будущая линейка</a>
+          <a href="#science">Научный подход</a>
+        </div>
+      </details>
       <div class="nav-links">
         <a href="#philosophy">Философия</a>
         <a href="#future-line">Будущая линейка</a>
